@@ -1,13 +1,15 @@
 from pysyncdest.api import API
+from pysyncdest.oauth import OAuth
 from pysyncdest.manifest import Manifest
 
 
 class Pysyncdest:
 
-    def __init__(self, api_key):
+    def __init__(self, api_key, client_id=None, client_secret=None):
         """Base class for Pysyndest"""
         self.api = API(api_key)
         self._manifest = Manifest(self.api)
+        self.oauth = OAuth(client_id, client_secret)
 
     def decode_hash(self, hash_id, definition, language="en"):
         """Get the corresponding static info for an item given it's hash value from the Manifest

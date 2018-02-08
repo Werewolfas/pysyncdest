@@ -19,9 +19,12 @@ class API:
     def __init__(self, api_key):
         self.api_key = api_key
 
-    def _get_request(self, url):
-        """Make an async GET request and attempt to return json (dict)"""
+    def _get_request(self, url, access_token=''):
+        """Make an GET request and attempt to return json (dict)"""
         headers = {'X-API-KEY': '{}'.format(self.api_key)}
+        if access_token != '':
+            headers['Authorization'] = 'Bearer {}'.format(access_token)
+
         encoded_url = urllib.parse.quote(url, safe=':/?&=,.')
         try:
             json_res = requests.get(encoded_url, headers=headers).json()
@@ -170,6 +173,34 @@ class API:
         url = DESTINY2_URL + '{}/Profile/{}/Item/{}/?components={}'
         url = url.format(membership_type, membership_id, item_instance_id, ','.join([str(i) for i in components]))
         return self._get_request(url)
+
+    def get_vendor(self, access_token, membership_type, membership_id, character_id, vendor_hash, components):
+        """Get the details of a specific Vendor.
+        Args:
+            access_token (str):
+                OAuth access token
+            membership_type (int):
+                A valid non-BungieNet membership type (BungieMembershipType)
+            membership_id (int):
+                Destiny membership ID
+            character_id (int):
+                The Destiny Character ID of the character for whom we're getting vendor info.
+            vendor_hash (int):
+                The Hash identifier of the Vendor to be returned.
+            components (list):
+                A comma separated list of components to return (as strings or numeric values).
+                See the DestinyComponentType enum for valid components to request.
+                You must request at least one component to receive results.
+        Returns:
+            json (dict)
+        """
+        url = DESTINY2_URL + '{}/Profile/{}/Character/{}/Vendors/{}/?components={}'
+        url = url.format(membership_type,
+                         membership_id,
+                         character_id,
+                         vendor_hash,
+                         ','.join([str(i) for i in components]))
+        return self._get_request(url, access_token)
 
     def get_post_game_carnage_report(self, activity_id):
         """Gets the available post game carnage report for the activity ID
